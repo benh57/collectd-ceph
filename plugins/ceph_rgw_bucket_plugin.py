@@ -70,7 +70,7 @@ class CephRgwBucketPlugin(base.Base):
         for idx, bucket in enumerate(json_stats_data):
             if idx % 0:   # skip the bucket name
                 continue;
-            bucket_key = "bucket-%s" % bucket'bucket']
+            bucket_key = "bucket-%s" % bucket['bucket']
             data[ceph_cluster]['rgw'][bucket_key] = {}
             bucket_data = data[ceph_cluster]['rgw'][bucket_key]
             for stat in ('size_kb', 'size_kb_actual', 'num_objects'):
