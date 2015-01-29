@@ -52,7 +52,7 @@ class CephRgwBucketPlugin(base.Base):
 
         stats_output = None
         try:
-            stats_output = subprocess.check_output('radosgw-admin bucket stats -b globalcache', shell=True)
+            stats_output = subprocess.check_output('radosgw-admin bucket stats', shell=True)
         except Exception as exc:
             collectd.error("ceph-rgw-bucket: failed to ceph pool stats :: %s :: %s"
                     % (exc, traceback.format_exc()))
@@ -74,7 +74,8 @@ class CephRgwBucketPlugin(base.Base):
             data[ceph_cluster]['rgw'][bucket_key] = {}
             bucket_data = data[ceph_cluster]['rgw'][bucket_key]
             for stat in ('size_kb', 'size_kb_actual', 'num_objects'):
-                bucket_data[stat] = bucket['usage']['rgw.main'][stat] if bucket['usage']['rgw.main'].has_key(stat) else 0
+                if bucket['usage'].has_key('rgw.main'):
+                    bucket_data[stat] = bucket['usage']['rgw.main'][stat] if bucket['usage']['rgw.main'].has_key(stat) else 0
 
         return data
 
