@@ -48,7 +48,6 @@ class CephRgwBucketPlugin(base.Base):
         ceph_cluster = "%s-%s" % (self.prefix, self.cluster)
 
         data = { ceph_cluster: {} }
-        data[ceph_cluster]['rgw'] = {}
 
         stats_output = None
         try:
@@ -71,8 +70,8 @@ class CephRgwBucketPlugin(base.Base):
             if idx % 2 == 0:   # skip the bucket name
                 continue;
             bucket_key = "bucket-%s" % bucket['bucket']
-            data[ceph_cluster]['rgw'][bucket_key] = {}
-            bucket_data = data[ceph_cluster]['rgw'][bucket_key]
+            data[ceph_cluster][bucket_key] = {}
+            bucket_data = data[ceph_cluster][bucket_key]
             for stat in ('size_kb', 'size_kb_actual', 'num_objects'):
                 if bucket['usage'].has_key('rgw.main'):
                     bucket_data[stat] = bucket['usage']['rgw.main'][stat] if bucket['usage']['rgw.main'].has_key(stat) else 0
