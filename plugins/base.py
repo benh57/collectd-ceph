@@ -31,6 +31,7 @@ import collectd
 import datetime
 import traceback
 
+
 class Base(object):
 
     def __init__(self):
@@ -59,7 +60,8 @@ class Base(object):
             elif node.key == 'Interval':
                 self.interval = float(node.values[0])
             else:
-                collectd.warning("%s: unknown config key: %s" % (self.prefix, node.key))
+                collectd.warning("%s: unknown config key: %s" %
+                                 (self.prefix, node.key))
 
     def dispatch(self, stats=None):
         """
@@ -80,44 +82,45 @@ class Base(object):
                     for type in stats[plugin][plugin_instance].keys():
                         type_value = stats[plugin][plugin_instance][type]
                         if not isinstance(type_value, dict):
-                            self.dispatch_value(plugin, plugin_instance, type, None, type_value)
+                            self.dispatch_value(
+                                plugin, plugin_instance, type, None, type_value)
                         else:
-                          for type_instance in stats[plugin][plugin_instance][type].keys():
-                              self.dispatch_value(plugin, plugin_instance,
-                                      type, type_instance,
-                                      stats[plugin][plugin_instance][type][type_instance])
+                            for type_instance in stats[plugin][plugin_instance][type].keys():
+                                self.dispatch_value(plugin, plugin_instance,
+                                                    type, type_instance,
+                                                    stats[plugin][plugin_instance][type][type_instance])
         except Exception as exc:
             collectd.error("%s: failed to dispatch values :: %s :: %s"
-                    % (self.prefix, exc, traceback.format_exc()))
+                           % (self.prefix, exc, traceback.format_exc()))
 
     def dispatch_value(self, plugin, plugin_instance, type, type_instance, value):
         """Looks for the given stat in stats, and dispatches it"""
         self.logdebug("dispatching value %s.%s.%s.%s=%s"
-                % (plugin, plugin_instance, type, type_instance, value))
+                      % (plugin, plugin_instance, type, type_instance, value))
 
         val = collectd.Values(type='gauge')
-        val.plugin=plugin
-        val.plugin_instance=plugin_instance
+        val.plugin = plugin
+        val.plugin_instance = plugin_instance
         if type_instance is not None:
-            val.type_instance="%s-%s" % (type, type_instance)
+            val.type_instance = "%s-%s" % (type, type_instance)
         else:
-            val.type_instance=type
-        val.values=[value]
+            val.type_instance = type
+        val.values = [value]
         val.interval = self.interval
         val.dispatch()
         self.logdebug("sent metric %s.%s.%s.%s.%s"
-                % (plugin, plugin_instance, type, type_instance, value))
+                      % (plugin, plugin_instance, type, type_instance, value))
 
     def read_callback(self):
         try:
             start = datetime.datetime.now()
             stats = self.get_stats()
             self.logverbose("collectd new data from service :: took %d seconds"
-                    % (datetime.datetime.now() - start).seconds)
+                            % (datetime.datetime.now() - start).seconds)
             self.dispatch(stats)
         except Exception as exc:
             collectd.error("%s: failed to get stats :: %s :: %s"
-                    % (self.prefix, exc, traceback.format_exc()))
+                           % (self.prefix, exc, traceback.format_exc()))
 
     def get_stats(self):
         collectd.error('Not implemented, should be subclassed')
@@ -129,4 +132,3 @@ class Base(object):
     def logdebug(self, msg):
         if self.debug:
             collectd.info("%s: %s" % (self.prefix, msg))
-

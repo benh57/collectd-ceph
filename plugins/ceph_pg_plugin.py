@@ -34,6 +34,7 @@ import subprocess
 
 import base
 
+
 class CephPGPlugin(base.Base):
 
     def __init__(self):
@@ -45,17 +46,19 @@ class CephPGPlugin(base.Base):
 
         ceph_cluster = "%s-%s" % (self.prefix, self.cluster)
 
-        data = { ceph_cluster: { 'pg': { } }  }
+        data = {ceph_cluster: {'pg': {}}}
         output = None
         try:
-            output = subprocess.check_output('ceph pg dump --format json', shell=True)
+            output = subprocess.check_output(
+                'ceph pg dump --format json', shell=True)
         except Exception as exc:
             collectd.error("ceph-pg: failed to ceph pg dump :: %s :: %s"
-                    % (exc, traceback.format_exc()))
+                           % (exc, traceback.format_exc()))
             return
 
         if output is None:
-            collectd.error('ceph-pg: failed to ceph osd dump :: output was None')
+            collectd.error(
+                'ceph-pg: failed to ceph osd dump :: output was None')
 
         json_data = json.loads(output)
 
@@ -73,10 +76,14 @@ class CephPGPlugin(base.Base):
             data[ceph_cluster][osd_id] = {}
             data[ceph_cluster][osd_id]['kb_used'] = osd['kb_used']
             data[ceph_cluster][osd_id]['kb_total'] = osd['kb']
-            data[ceph_cluster][osd_id]['snap_trim_queue_len'] = osd['snap_trim_queue_len']
-            data[ceph_cluster][osd_id]['num_snap_trimming'] = osd['num_snap_trimming']
-            data[ceph_cluster][osd_id]['apply_latency_ms'] = osd['fs_perf_stat']['apply_latency_ms']
-            data[ceph_cluster][osd_id]['commit_latency_ms'] = osd['fs_perf_stat']['commit_latency_ms']
+            data[ceph_cluster][osd_id][
+                'snap_trim_queue_len'] = osd['snap_trim_queue_len']
+            data[ceph_cluster][osd_id][
+                'num_snap_trimming'] = osd['num_snap_trimming']
+            data[ceph_cluster][osd_id]['apply_latency_ms'] = osd[
+                'fs_perf_stat']['apply_latency_ms']
+            data[ceph_cluster][osd_id]['commit_latency_ms'] = osd[
+                'fs_perf_stat']['commit_latency_ms']
 
         return data
 
@@ -84,16 +91,17 @@ try:
     plugin = CephPGPlugin()
 except Exception as exc:
     collectd.error("ceph-pg: failed to initialize ceph pg plugin :: %s :: %s"
-            % (exc, traceback.format_exc()))
+                   % (exc, traceback.format_exc()))
+
 
 def configure_callback(conf):
     """Received configuration information"""
     plugin.config_callback(conf)
     collectd.register_read(read_callback, plugin.interval)
 
+
 def read_callback():
     """Callback triggerred by collectd on read"""
     plugin.read_callback()
 
 collectd.register_config(configure_callback)
-
