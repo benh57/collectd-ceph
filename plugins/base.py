@@ -61,7 +61,7 @@ class Base(object):
             else:
                 collectd.warning("%s: unknown config key: %s" % (self.prefix, node.key))
 
-    def dispatch(self, stats):
+    def dispatch(self, stats=None):
         """
         Dispatches the given stats.
 
@@ -69,7 +69,7 @@ class Base(object):
 
         {'plugin': {'plugin_instance': {'type': {'type_instance': <value>, ...}}}}
         """
-        if not stats:
+        if stats is None:
             collectd.error("%s: failed to retrieve stats" % self.prefix)
             return
 
@@ -114,10 +114,10 @@ class Base(object):
             stats = self.get_stats()
             self.logverbose("collectd new data from service :: took %d seconds"
                     % (datetime.datetime.now() - start).seconds)
+            self.dispatch(stats)
         except Exception as exc:
             collectd.error("%s: failed to get stats :: %s :: %s"
                     % (self.prefix, exc, traceback.format_exc()))
-        self.dispatch(stats)
 
     def get_stats(self):
         collectd.error('Not implemented, should be subclassed')
