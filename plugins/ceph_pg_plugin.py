@@ -81,9 +81,9 @@ class CephPGPlugin(base.Base):
             data[ceph_cluster][osd_id][
                 'num_snap_trimming'] = osd['num_snap_trimming']
             data[ceph_cluster][osd_id]['apply_latency_ms'] = osd[
-                'fs_perf_stat']['apply_latency_ms']
+                'perf_stat']['apply_latency_ms']
             data[ceph_cluster][osd_id]['commit_latency_ms'] = osd[
-                'fs_perf_stat']['commit_latency_ms']
+                'perf_stat']['commit_latency_ms']
 
         return data
 
