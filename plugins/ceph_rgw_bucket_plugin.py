@@ -64,11 +64,7 @@ class CephRgwBucketPlugin(base.Base):
 
         # rgw bucket stats results
 
-        # The json format is a little odd:
-        # [ bucketname1, bucketdata1, bucketname2, bucketdata.... ]
         for idx, bucket in enumerate(json_stats_data):
-            if idx % 2 == 0:   # skip the bucket name
-                continue;
             bucket_key = "bucket-%s" % bucket['bucket']
             data[ceph_cluster][bucket_key] = {}
             bucket_data = data[ceph_cluster][bucket_key]
